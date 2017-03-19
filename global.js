@@ -46,6 +46,14 @@ class GoogleSpeech {
 			console.log('PIPING > GOOGLE')
 		})
 
+		this.stream.on('error', function(err){
+			console.error('ERROR > GOOGLE', err)
+		})
+
+		this.stream.on('close', function(){
+			console.log('GOOGLE PIPE > CLOSED')
+		})
+
 		this.stream.on('data', function(data){
 
 			var result = data.results[0]
@@ -124,7 +132,7 @@ const snowboyDetector = new Detector({
 
 
 snowboyDetector.on('unpipe', function(src){
-	console.error('STOPPED PIPING > SNOWBOY')
+	console.log('STOPPED PIPING > SNOWBOY')
 })
 
 snowboyDetector.on('pipe', function(src){
@@ -141,8 +149,6 @@ snowboyDetector.on('close', function(){
 
 snowboyDetector.on('hotword', function(index, hotword){
 	console.log('HOTWORD', index, hotword)
-	//mic.unpipe(snowboyDetector)
-	//mic.pipe(googleDetector)
 	mic.unpipe(snowboyDetector)
 	const gNew = new GoogleSpeech(request)
 	gNew.startStream()
@@ -164,80 +170,9 @@ const mic = record.start(micopts)
 mic.pipe(snowboyDetector)
 
 eventEmitter.on('final', function(data){
-	console.log("FINALLL:",data)
+	console.log("FINAL TEXT RESULT:",data)
 })
 
-
-// googleDetector.on('error', function(err){
-// 	console.error("GOOGLE ERROR", err)
-// })
-
-// googleDetector.on('data', function(data){
-// 	var result = data.results[0]
-
-// 	console.log(data)
-
-// 	if(data.error){
-// 		console.error("GOOGLE DATA ERROR", data.error)
-// 	}
-
-// 	if(data.endpointerType === 'START_OF_SPEECH'){
-// 		console.log("GOOGLE DETECTED SPEECH")
-// 	}
-
-// 	if(data.endpointerType === 'END_OF_SPEECH'){
-// 		console.log("GOOGLE END OF SPEECH")
-// 	}
-
-// 	if(data.endpointerType === 'END_OF_AUDIO'){
-// 		console.log("GOOGLE END OF AUDIO")
-// 		//googleDetector.end()
-// 		//mic.unpipe(googleDetector)
-// 		//mic.pipe(snowboyDetector)
-// 	}
-
-// 	if(data.endpointerType === 'ENDPOINTER_EVENT_UNSPECIFIED'){
-// 		if(result && result.isFinal){
-			
-// 			//mic.pipe(snowboyDetector)
-// 		}
-// 	}
-
-// 	if(data.endpointerType === 'END_OF_UTTERANCE'){
-// 		console.log("GOOGLE END OF UTTERANCE")
-// 		mic.unpipe(googleDetector)
-// 		if(result){
-// 			if(result.isFinal){
-// 			console.log("!FINAL RESULT:", result.transcript)
-			
-			
-// 			} else {
-// 			console.log("!PARTIAL RESULT:", result.transcript)
-// 			}
-// 		}
-
-		
-// 	}
-	
-// })
-
-// googleDetector.on('finish', function(){
-// 	console.log('FINISHED > GOOGLE')
-// })
-
-// googleDetector.on('pipe', function(src){
-// 	console.log('PIPING > GOOGLE')
-// })
-
-// googleDetector.on('unpipe', function(src){
-// 	console.error('STOPPED PIPING > GOOGLE')
-// 	googleDetector.end()
-// 	mic.pipe(snowboyDetector)
-// })
-
-// googleDetector.on('close', function(){
-// 	console.error("GOOGLE PIPE CLOSED")
-// })
 
 
 
