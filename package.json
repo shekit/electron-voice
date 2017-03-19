@@ -1,0 +1,17 @@
+{
+  "name": "google-speech-direct",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/speech": "^0.7.0",
+    "nan": "^2.5.1",
+    "node-record-lpcm16": "^0.2.0",
+    "snowboy": "^1.1.0"
+  }
+}
