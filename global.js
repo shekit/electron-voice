@@ -19,7 +19,7 @@ const Models = require('snowboy').Models;
 const models = new Models();
 
 models.add({
-	file: path.resolve('./Peeqo.pmdl'),
+	file: path.resolve('./snowboy.umdl'),
 	sensitivity: 0.5,
 	hotwords: 'peeqo'
 })
@@ -94,7 +94,7 @@ class GoogleSpeech {
 
 		this.stream.on('data', function(data){
 
-			var result = data.results[0]
+			//var result = data.results[0]
 
 			//console.log(data)
 
