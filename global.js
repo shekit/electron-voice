@@ -1,16 +1,53 @@
 const record = require('node-record-lpcm16')
 const path = require('path')
 const events = require('events')
+const os = require('os')
 
+// EVENT EMITTER
 var eventEmitter = new events.EventEmitter()
 eventEmitter.setMaxListeners(Infinity)
 
+eventEmitter.on('final', function(data){
+	console.log("FINAL TEXT RESULT:",data)
+})
 
+
+// SNOWBOY
+const Detector = require('snowboy').Detector;
+const Models = require('snowboy').Models;
+
+const models = new Models();
+
+models.add({
+	file: path.resolve('./Peeqo.pmdl'),
+	sensitivity: 0.5,
+	hotwords: 'peeqo'
+})
+
+const snowboyDetector = new Detector({
+	resource: "./common.res",
+	models: models,
+	audioGain: 2.0
+})
+
+// NODE RECORD
+
+var recorder = (os.arch()=='arm')?'arecord':'rec'
+
+const opts = {
+	verbose: false,
+	threshold: 0,
+	recordProgram: recorder
+}
+
+const mic = record.start(opts)
+
+
+// GOOGLE CLOUD SPEECH
 const speech = require('@google-cloud/speech')({
   projectId: 'peeqo-161506',
   keyFilename: path.resolve('./keyfile.json')
 })
-
 
 const request = {
 	config:{
@@ -23,6 +60,7 @@ const request = {
 }
 
 
+// SPEECH CLASS
 class GoogleSpeech {
 	constructor(request){
 		this.request = request
@@ -109,28 +147,7 @@ class GoogleSpeech {
 
 }
 
-
-//const googleDetector = speech.createRecognizeStream(request)
-
-const Detector = require('snowboy').Detector;
-const Models = require('snowboy').Models;
-
-const models = new Models();
-
-models.add({
-	file: path.resolve('./Peeqo.pmdl'),
-	sensitivity: 0.5,
-	hotwords: 'peeqo'
-})
-
-const snowboyDetector = new Detector({
-	resource: "./common.res",
-	models: models,
-	audioGain: 2.0
-})
-
-
-
+// SNOWBOY EVENTS
 snowboyDetector.on('unpipe', function(src){
 	console.log('STOPPED PIPING > SNOWBOY')
 })
@@ -152,26 +169,18 @@ snowboyDetector.on('hotword', function(index, hotword){
 	mic.unpipe(snowboyDetector)
 	const gNew = new GoogleSpeech(request)
 	gNew.startStream()
-	
 })
 
 snowboyDetector.on('data', function(data){
 	console.log("SNOWBOY DATA", data)
 })
 
-const micopts = {
-	verbose: false,
-	threshold: 0,
-	recordProgram: 'rec'
-}
 
-const mic = record.start(micopts)
+
+// START LISTENING
 
 mic.pipe(snowboyDetector)
 
-eventEmitter.on('final', function(data){
-	console.log("FINAL TEXT RESULT:",data)
-})
 
 
 
